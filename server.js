@@ -60,6 +60,7 @@ function toItem(row) {
 function setCors(request, response) {
   const origin = request.headers.origin;
   if (!origin) return true;
+  if (origin.toLowerCase() === `http://${request.headers.host}`.toLowerCase()) return true;
   if (!ALLOWED_ORIGINS.includes("*") && !ALLOWED_ORIGINS.includes(origin)) return false;
   response.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGINS.includes("*") ? "*" : origin);
   response.setHeader("Vary", "Origin");
@@ -69,7 +70,7 @@ function setCors(request, response) {
 }
 function send(response, status, body, type = "application/json; charset=utf-8") {
   response.writeHead(status, { "Content-Type": type, "Cache-Control": "no-store" });
-  response.end(typeof body === "string" ? body : JSON.stringify(body));
+  response.end(typeof body === "string" || Buffer.isBuffer(body) ? body : JSON.stringify(body));
 }
 function readBody(request) {
   return new Promise((resolve, reject) => {
@@ -139,6 +140,9 @@ const server = http.createServer(async (request, response) => {
     const url = new URL(request.url, "http://localhost");
     if (request.method === "OPTIONS") { response.writeHead(204); response.end(); return; }
     if (request.method === "GET" && url.pathname === "/api/health") return send(response, 200, { ok: true });
+    if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/pm_js.html")) {
+      return send(response, 200, fs.readFileSync(path.join(__dirname, "pm_js.html")), "text/html; charset=utf-8");
+    }
     if (request.method === "GET" && url.pathname === "/api/export.csv") {
       response.setHeader("Content-Disposition", 'attachment; filename="pm_review.csv"');
       return send(response, 200, exportCsv(), "text/csv; charset=utf-8");
