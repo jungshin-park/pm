@@ -1,0 +1,12 @@
+{
+  "name": "pmc-2026-review-api",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "check": "node --check server.js"
+  }
+}
