@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LG SW PM 역량인증 심사 현황</title>
+  <style>
+    :root {
+      --navy:#12233f; --blue:#2563eb; --blue-soft:#eaf2ff; --green:#16845b;
+      --green-soft:#e9f8f1; --amber:#b86208; --amber-soft:#fff5df; --red:#c2413b;
+      --ink:#172033; --muted:#667085; --line:#dce2ea; --bg:#f4f7fb; --card:#fff;
+      --shadow:0 12px 32px rgba(25,45,78,.08); --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,"Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif}
+    button,input{font:inherit}
+    a{color:inherit}
+    .topbar{background:linear-gradient(130deg,#10213c 0%,#1b3a69 72%,#245aa6 100%);color:#fff;padding:28px clamp(18px,4vw,54px) 30px}
+    .top-inner{max-width:1500px;margin:auto}
+    .eyebrow{font-size:13px;font-weight:800;letter-spacing:.12em;color:#a9c9ff;text-transform:uppercase}
+    h1{margin:7px 0 8px;font-size:clamp(25px,3.3vw,40px);line-height:1.18}
+    .subtitle{margin:0;color:#d8e6fb;font-size:15px}
+    .toolbar{max-width:1500px;margin:-15px auto 0;padding:0 clamp(14px,3vw,28px);position:relative;z-index:2}
+    .toolbar-inner{background:#fff;border:1px solid #e6ebf2;border-radius:16px;box-shadow:var(--shadow);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .dates,.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .date-btn,.action-btn{border:1px solid var(--line);background:#fff;border-radius:11px;padding:9px 13px;font-weight:800;color:#344054;cursor:pointer;transition:.16s ease}
+    .date-btn:hover,.action-btn:hover{border-color:#9db8e8;background:#f7faff}
+    .date-btn.active{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:0 5px 14px rgba(18,35,63,.2)}
+    .action-btn.danger{color:var(--red)}
+    .operator-wrap{display:flex;align-items:center;gap:7px;padding:4px 8px 4px 10px;border:1px solid var(--line);border-radius:11px;background:#f8fafc;color:var(--muted);font-size:12px;font-weight:800}
+    .operator-wrap input{width:88px;border:0;background:transparent;outline:none;color:var(--ink);font-weight:800}
+    .container{max-width:1500px;margin:22px auto 48px;padding:0 clamp(14px,3vw,28px)}
+    .notice{display:flex;gap:10px;align-items:flex-start;background:#eef5ff;border:1px solid #cfe0fb;color:#31507f;border-radius:12px;padding:11px 14px;font-size:13px;margin-bottom:16px}
+    .summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+    .summary-card{background:#fff;border:1px solid #e4e9f0;border-radius:15px;padding:17px;box-shadow:0 5px 18px rgba(36,55,85,.045)}
+    .summary-label{font-size:12px;color:var(--muted);font-weight:800;margin-bottom:5px}
+    .summary-value{font-size:28px;font-weight:900;letter-spacing:-.03em}
+    .summary-sub{font-size:12px;color:var(--muted);margin-top:3px}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:22px 0 12px}
+    .section-head h2{margin:0;font-size:21px}.section-head p{margin:0;color:var(--muted);font-size:13px}
+    .progress-board{background:#fff;border:1px solid #e2e7ef;border-radius:16px;padding:6px 14px;box-shadow:var(--shadow);margin-bottom:18px}
+    .progress-row{display:grid;grid-template-columns:minmax(130px,1.05fr) minmax(125px,1fr) minmax(150px,1.2fr) minmax(170px,1.35fr);gap:12px;align-items:center;padding:11px 5px;border-bottom:1px solid #edf0f4}
+    .progress-row:last-child{border-bottom:0}.progress-name{font-weight:900}.progress-room{color:var(--muted);font-size:13px}
+    .mini-track{height:8px;background:#e9edf3;border-radius:99px;overflow:hidden}.mini-fill{height:100%;background:linear-gradient(90deg,#2f72e9,#20a477);border-radius:99px}
+    .progress-next{font-size:13px;color:#344054}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .group-card{background:#fff;border:1px solid #dfe5ed;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-width:0}
+    .group-card.complete{border-color:#84d7b6}.card-head{padding:17px 18px 14px;border-bottom:1px solid #edf0f4;background:linear-gradient(180deg,#fff,#fbfcfe)}
+    .head-line{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.group-title{margin:0;font-size:19px;letter-spacing:-.02em}
+    .status{font-size:12px;font-weight:900;padding:6px 9px;border-radius:99px;white-space:nowrap;background:var(--amber-soft);color:var(--amber)}
+    .status.wait{background:#eef1f5;color:#667085}.status.done{background:var(--green-soft);color:var(--green)}
+    .room{margin-top:7px;color:#41516a;font-size:13px;font-weight:800;display:flex;align-items:center;gap:6px}
+    .meta{display:grid;grid-template-columns:70px 1fr;gap:7px 10px;padding:13px 18px;font-size:13px;border-bottom:1px solid #edf0f4}
+    .meta dt{margin:0;color:var(--muted);font-weight:800}.meta dd{margin:0;font-weight:700;min-width:0}.meeting{font-variant-numeric:tabular-nums}
+    .webex-box{margin:0 18px 13px;border:1px solid #cfe0fb;background:#f4f8ff;border-radius:12px;padding:10px 11px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .webex-copy{min-width:0}.webex-copy strong{display:block;font-size:13px;color:#1d4f99}.webex-copy span{display:block;font-size:11px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .join-btn{background:#2463c7;color:#fff;text-decoration:none;font-size:12px;font-weight:900;padding:8px 10px;border-radius:9px;white-space:nowrap}
+    .card-progress{padding:0 18px 13px}.progress-top{display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-bottom:6px}.progress-top span:last-child{color:var(--blue)}
+    .track{height:9px;background:#edf1f5;border-radius:99px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,#2f72e9,#22a575);border-radius:99px;transition:width .22s ease}
+    .schedule{list-style:none;padding:0;margin:0}.slot{display:grid;grid-template-columns:88px 28px 1fr;align-items:center;gap:8px;min-height:47px;padding:7px 18px;border-top:1px solid #edf0f4}
+    .slot:first-child{border-top:0}.slot-time{font-size:12px;color:#5c687a;font-variant-numeric:tabular-nums;font-weight:750}
+    .slot input{width:19px;height:19px;margin:0;accent-color:var(--green);cursor:pointer}.person-label{min-width:0;font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px}
+    .person-label.done{color:#8b95a5}.person-label.done .contact-btn{text-decoration:line-through}
+    .contact-btn{border:0;background:transparent;padding:0;color:#1b4f8f;font-weight:850;cursor:pointer;text-align:left;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+    .contact-btn:hover{color:#0f62c9;text-decoration-style:solid}.person-name.webex-person{color:#1458bd;text-underline-offset:3px;text-decoration-thickness:1.5px}.person-name.webex-person:hover{text-decoration:underline}
+    .w-badge{font-size:10px;padding:3px 5px;border-radius:5px;background:#e8f1ff;color:#1557b0;text-decoration:none}.slot.milestone{background:#fbfcfe}.slot.milestone .person-label{color:#667085;font-weight:700}.slot.empty{background:#fcfcfd}.slot.empty .person-label{color:#98a2b3;font-weight:650;font-style:italic}
+    .card-foot{margin-top:auto;border-top:1px solid #edf0f4;padding:11px 18px;background:#fbfcfd;font-size:12px;color:#667085}.card-foot strong{color:#344054}
+    .hidden-input{display:none}.empty-date{padding:50px;text-align:center;background:#fff;border-radius:16px;border:1px solid var(--line)}
+    .toast{position:fixed;right:20px;bottom:20px;background:#18243a;color:#fff;padding:11px 15px;border-radius:10px;box-shadow:0 10px 26px rgba(0,0,0,.18);font-size:13px;font-weight:700;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s;z-index:30}.toast.show{opacity:1;transform:none}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(10,20,38,.54);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-backdrop.open{display:flex}
+    .modal{width:min(560px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.25)}
+    .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 22px 15px;border-bottom:1px solid #edf0f4}.modal-head h3{margin:0;font-size:21px}.modal-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.modal-close{border:0;background:#eef2f6;border-radius:50%;width:32px;height:32px;cursor:pointer;font-weight:900}
+    .modal-body{padding:18px 22px 22px}.contact-profile{padding:13px 14px;border-radius:12px;background:#f6f8fb;color:#344054;font-size:13px;margin-bottom:14px}.contact-grid{display:grid;grid-template-columns:88px 1fr;gap:11px 12px;font-size:14px}.contact-grid dt{color:var(--muted);font-weight:800}.contact-grid dd{margin:0;font-weight:750;word-break:break-all}.contact-grid a{color:#1458bd;text-decoration:none}.contact-grid a:hover{text-decoration:underline}
+    .modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.primary-btn,.secondary-btn{border:0;border-radius:10px;padding:10px 13px;font-weight:850;cursor:pointer;text-decoration:none;font-size:13px}.primary-btn{background:#205fc4;color:#fff}.secondary-btn{background:#eef3f9;color:#24415f}.share-explain{font-size:13px;color:#475467;line-height:1.6}.share-method{border:1px solid #e1e7ef;border-radius:12px;padding:12px 13px;margin:10px 0}.share-method strong{display:block;color:#243b5a;margin-bottom:2px}.share-warning{border-left:4px solid #e4a11b;background:#fff8e8;border-radius:8px;padding:10px 12px;font-size:12px;color:#74521a}.share-meta{background:#f4f7fb;border-radius:10px;padding:10px 12px;font-size:12px;color:#56637a;margin-top:10px}
+    @media(max-width:1100px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.summary-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:700px){.cards{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(2,1fr)}.progress-row{grid-template-columns:1fr 1fr}.progress-next{grid-column:1/-1}.toolbar-inner{align-items:stretch}.actions{width:100%}.action-btn{flex:1}.slot{grid-template-columns:80px 25px 1fr;padding-left:14px;padding-right:14px}}
+    @media print{body{background:#fff}.topbar{padding:16px 24px}.toolbar,.notice,.actions{display:none}.container{margin:12px auto;padding:0}.cards{grid-template-columns:repeat(2,1fr);gap:10px}.group-card{box-shadow:none;break-inside:avoid}.progress-board{box-shadow:none}}
+  </style>
+
+  <style id="pink-dashboard-theme">
+    :root{--wine:#8d123b;--magenta:#cf1550;--rose:#e94775;--pink-50:#fff8fa;--pink-100:#fff0f4;--pink-200:#f6d6e0;--pink-300:#edb9ca;--blue:#2471cf;--green:#20a66a;--red:#dd3653;--ink:#272238;--muted:#756a7a;--line:#f0cfda;--bg:#fff9fb;--shadow:0 10px 26px rgba(121,22,56,.075)}
+    html{scroll-behavior:smooth}
+    body{background-color:var(--bg);background-image:linear-gradient(rgba(220,151,175,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(220,151,175,.10) 1px,transparent 1px);background-size:40px 40px;color:var(--ink)}
+    .topbar{background:rgba(255,255,255,.96);color:var(--ink);padding:0;border-bottom:1px solid var(--pink-200);box-shadow:0 3px 14px rgba(117,22,54,.04)}
+    .top-inner{max-width:1500px;padding:18px clamp(18px,4vw,54px) 28px}
+    .brand-row{display:flex;align-items:center;gap:10px;margin-bottom:25px;font-size:14px;font-weight:900;color:#3e3343}
+    .brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:linear-gradient(145deg,#b70f47,#ec2c68);color:#fff;font-size:12px;box-shadow:0 7px 17px rgba(190,18,73,.22)}
+    .brand-sep{height:18px;width:1px;background:var(--pink-200)}
+    .brand-sub{font-size:12px;color:var(--wine);font-weight:850;letter-spacing:.01em}
+    .eyebrow{display:inline-flex;align-items:center;gap:7px;background:var(--magenta);color:#fff;padding:5px 11px;border-radius:99px;font-size:11px;letter-spacing:.04em}
+    .eyebrow:before{content:'▦';font-size:10px}
+    h1{margin:11px 0 8px;color:var(--wine);font-size:clamp(34px,4.6vw,58px);letter-spacing:-.055em}
+    .subtitle{color:#776d7b;font-size:14px}
+    .toolbar{margin:0 auto;padding-top:14px}
+    .toolbar-inner{background:rgba(255,255,255,.94);border:1px solid var(--pink-200);border-radius:15px;box-shadow:none;padding:12px 14px}
+    .date-btn,.action-btn{border-color:var(--pink-200);border-radius:10px;color:#604254;background:#fff}
+    .date-btn:hover,.action-btn:hover{border-color:var(--rose);background:var(--pink-50);color:var(--wine)}
+    .date-btn.active{background:var(--wine);border-color:var(--wine);color:#fff;box-shadow:0 5px 12px rgba(141,18,59,.18)}
+    .action-btn.primary{background:var(--magenta);border-color:var(--magenta);color:#fff}.action-btn.primary:hover{background:var(--wine);color:#fff}
+    .action-btn.danger{color:#bd234a}
+    .operator-wrap{border-color:var(--pink-200);background:#fff9fb;color:#7b5868}
+    .sync-pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--pink-200);background:#fff;border-radius:99px;padding:8px 11px;font-size:12px;font-weight:850;color:#735969;white-space:nowrap}
+    .sync-dot{width:9px;height:9px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 4px rgba(36,113,207,.10)}
+    .sync-pill.online .sync-dot{background:var(--green);box-shadow:0 0 0 4px rgba(32,166,106,.11)}.sync-pill.error .sync-dot{background:var(--red);box-shadow:0 0 0 4px rgba(221,54,83,.11)}.sync-pill.busy .sync-dot{animation:pulse 1s infinite}
+    .context-action{display:inline-flex;align-items:center;margin-left:auto;border:0;border-radius:9px;background:var(--wine);color:#fff!important;padding:7px 10px;text-decoration:none;font-size:12px;font-weight:900;white-space:nowrap}.context-action:hover{background:var(--magenta)}
+    .diagnostic{margin-top:10px;padding:10px 12px;background:#fff;border:1px solid var(--pink-200);border-radius:9px;font:11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;color:#725565;word-break:break-all}
+    @keyframes pulse{50%{opacity:.35}}
+    .container{margin-top:16px}
+    .notice{background:rgba(255,243,247,.94);border:1px solid var(--pink-300);border-left:4px solid var(--magenta);color:#725166;border-radius:12px}
+    .summary-card{border-color:var(--pink-200);border-radius:16px;box-shadow:none;position:relative;overflow:hidden}.summary-card:after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--magenta),#ee789a)}
+    .summary-label{color:#7a5969}.summary-value{color:var(--wine)}.summary-sub{color:#97838d}
+    .section-head h2{color:#4b2133;font-size:23px}.section-head p{color:#8a7781}
+    .progress-board{border-color:var(--pink-200);box-shadow:none;background:rgba(255,255,255,.94);padding:0;border-radius:16px;overflow:hidden}
+    .progress-row{padding:13px 16px;border-color:#f5e0e7}.progress-name{color:#5c263b}.progress-room{color:#8a7680}.progress-next{color:#6b5661}
+    .mini-track,.track{background:#f5e4ea}.mini-fill,.fill{background:linear-gradient(90deg,var(--magenta),#ef6e94)}
+    .cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .group-card{border-color:var(--pink-200);box-shadow:0 8px 22px rgba(113,22,52,.055);border-radius:18px}.group-card.complete{border-color:#8dd7b4}
+    .card-head{background:linear-gradient(180deg,#fff,#fff9fb);border-color:#f3dce4}.group-title{color:var(--wine)}.room{color:#765565}
+    .status{display:inline-flex;align-items:center;gap:6px;background:#eef5ff;color:var(--blue)}.status:before{content:'';width:8px;height:8px;border-radius:50%;background:currentColor}.status.wait{background:#fff0f3;color:var(--red)}.status.done{background:#ecf9f2;color:var(--green)}
+    .meta{border-color:#f3dce4}.meta dt{color:#9b7887}.meta dd{color:#4f3d47}
+    .webex-box{border-color:#d8e5f6;background:#f6faff}.webex-copy strong{color:#2366b3}.join-btn{background:var(--blue);border-radius:9px}.join-btn:hover{background:#155ba9}
+    .progress-top span:last-child{color:var(--magenta)}
+    .slot{border-color:#f4dce4}.slot:hover{background:#fffafd}.slot-time{color:#8c7480}.slot input{accent-color:var(--magenta)}
+    .contact-btn{color:#5b2b3d;text-decoration-color:#d792a9}.contact-btn:hover{color:var(--magenta)}
+    .w-badge{background:#edf5ff;color:#2465b3;border-radius:99px;padding:4px 7px}.slot.milestone{background:#fff9fb}.slot.empty{background:#fffdfd}
+    .card-foot{border-color:#f3dce4;background:#fff9fb}.done-meta{display:block;font-size:10px;color:#a48491;margin-top:3px;text-decoration:none!important}
+    .modal{border:1px solid var(--pink-200);border-radius:20px}.modal-head{background:#fff8fa;border-color:var(--pink-200)}.modal-head h3{color:var(--wine)}.modal-close{background:#f9e7ed;color:var(--wine)}
+    .contact-profile,.share-meta{background:#fff5f8}.primary-btn{background:var(--magenta)}.secondary-btn{background:#f8eaf0;color:var(--wine)}.share-method{border-color:var(--pink-200)}.share-warning{border-left-color:var(--magenta);background:#fff4f7;color:#774053}
+    @media(max-width:1100px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:700px){.brand-row{margin-bottom:18px}.top-inner{padding-bottom:22px}.cards{grid-template-columns:1fr}.sync-pill{width:100%;justify-content:center}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="top-inner">
+      <div class="brand-row"><span class="brand-mark">PM</span><span>LG SW PM 역량인증 심사</span><span class="brand-sep"></span><span class="brand-sub">운영 대시보드</span></div>
+      <div class="eyebrow">REVIEW OPERATIONS</div>
+      <h1>LG SW PM 역량인증 심사 현황</h1>
+      <p class="subtitle">심사 일정·진행률·대상자 연락처를 한 화면에서 확인하는 운영 대시보드</p>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <nav class="dates" id="dateButtons" aria-label="심사 날짜 선택"></nav>
+      <div class="actions">
+        <span class="sync-pill busy" id="syncPill"><span class="sync-dot"></span><span id="syncText">SharePoint 연결 중</span></span>
+        <label class="operator-wrap">운영자 <input id="operatorName" type="text" maxlength="20" placeholder="이름 입력" aria-label="현재 운영자 이름"></label>
+        <button class="action-btn primary" id="shareBtn" type="button">공유 대시보드</button>
+        <button class="action-btn" id="refreshBtn" type="button">새로고침</button>
+        <button class="action-btn" id="copyBtn" type="button">현황 복사</button>
+        <button class="action-btn" id="exportBtn" type="button">현황 파일 내보내기</button>
+        <button class="action-btn" id="importBtn" type="button">현황 불러오기</button>
+        <input class="hidden-input" id="importFile" type="file" accept="application/json,.json" />
+        <button class="action-btn danger" id="resetBtn" type="button">선택 날짜 초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="container">
+    <div class="notice" id="storageNotice"><strong>공용 현황</strong><span id="storageNoticeText">SharePoint Lists 중앙 저장소에서 최신 완료 현황을 불러오는 중입니다.</span><a class="context-action" id="openSharePointContext" href="#" target="_top" hidden>SharePoint에서 열기</a></div>
+    <section class="summary-grid" id="summary" aria-label="선택 날짜 요약"></section>
+    <div class="section-head"><div><h2 id="dateTitle"></h2><p>그룹별 마지막 완료 대상과 다음 심사 대상을 비교할 수 있습니다.</p></div></div>
+    <section class="progress-board" id="progressBoard" aria-label="그룹별 진행 위치"></section>
+    <section class="cards" id="cards" aria-label="그룹별 상세 현황"></section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="modal-backdrop" id="contactModal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+      <header class="modal-head"><div><h3 id="contactTitle">대상자 연락처</h3><p>사내 Microsoft 365 디렉터리 기준</p></div><button class="modal-close" type="button" data-close="contactModal" aria-label="닫기">×</button></header>
+      <div class="modal-body" id="contactBody"></div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="shareModal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+      <header class="modal-head"><div><h3 id="shareTitle">공용 현황 공유</h3><p>SharePoint Lists 중앙 저장소 연동</p></div><button class="modal-close" type="button" data-close="shareModal" aria-label="닫기">×</button></header>
+      <div class="modal-body">
+        <div class="share-explain">완료 체크는 팀 SharePoint의 <strong>LG SW PM 역량인증 심사 현황</strong> 목록에 즉시 저장됩니다. 다른 회의실이나 브라우저에서도 같은 대시보드를 열면 동일한 중앙 현황을 확인할 수 있습니다.</div>
+        <div class="share-method"><strong>① 자동 저장</strong>대상자 완료 여부와 완료 처리자·시각을 중앙 목록에 저장합니다.</div>
+        <div class="share-method"><strong>② 자동 새로고침</strong>5초 간격과 화면 재진입 시 최신 현황을 읽어옵니다.</div>
+        <div class="share-method"><strong>③ 장애 시 로컬 캐시</strong>네트워크가 끊겨도 마지막으로 읽은 상태를 보여주며, 연결 복구 후 새로고침할 수 있습니다.</div>
+        <div class="share-warning">목록을 수정하려면 해당 SharePoint 목록에 편집 권한이 필요합니다. 체크가 저장되지 않으면 상단 연결 상태와 권한을 확인하세요.</div>
+        <div class="share-meta" id="shareMeta"></div>
+        <div class="modal-actions"><button class="primary-btn" id="copyShareLinkBtn" type="button">대시보드 링크 복사</button><a class="secondary-btn" id="openListBtn" href="https://lgeteams.sharepoint.com/sites/msteams_2a2df6/Lists/LG%20SW%20PM" target="_blank" rel="noopener">공용 목록 열기</a><button class="secondary-btn" id="syncNowBtn" type="button">지금 동기화</button><a class="secondary-btn" id="excelExportBtn" href="#" hidden>Excel(CSV) 내려받기</a></div>
+      </div>
+    </section>
+  </div>
+
+<script>
+const REVIEW_DATA = {
+  "2026-11-26": {
+    label: "11/26 (목)",
+    groups: [
+      { id:"1126-ms-a", name:"MS_그룹A", room:"마곡 W3 B1F-04", reviewers:["김태규","최종우","조성연"], ft:"이은아", webex:"https://lgehq.webex.com/lgehq/j.php?MTID=m3eae05d6486dd62d2393dc58ee4b5b73", meeting:"2513 578 1159", password:"123123", slots:[
+        ["08:30~09:00","미정","empty"],["09:15~09:45","배경남"],["10:00~10:30","김순태"],["10:45~11:15","유종희"],["11:30~12:00","최정용"],["12:15~12:45","최진규"],["12:45~13:00","랩업","milestone"] ]},
+      { id:"1126-ms-d", name:"MS_그룹D", room:"마곡 W3 B1F-05", reviewers:["임주영","황혜정","유철화"], ft:"이승진", webex:"https://lgehq.webex.com/lgehq/j.php?MTID=me335d2ba6c21b17b8f6012d1d56dcecd", meeting:"2518 916 5875", password:"123123", slots:[
+        ["08:30~09:00","미정","empty"],["09:15~09:45","이석희"],["10:00~10:30","이장희"],["10:45~11:15","이진희 (B2B솔루션PMO)"],["11:30~12:00","이진희 (webOS UX플랫폼개발팀)"],["12:15~12:45","조혜란"],["12:45~13:00","랩업","milestone"] ]},
+      { id:"1126-cto-a", name:"CTO_그룹A", room:"마곡 W3 B1F-06", reviewers:["이진복","이지호","박희수"], ft:"진명숙", webex:"https://lgehq.webex.com/lgehq/j.php?MTID=m190ffeb374997af14cca222d7fadd590", meeting:"2516 321 2942", password:"123123", slots:[
+        ["08:30~09:00","미정","empty"],["09:15~09:45","김세윤"],["10:00~10:30","정재현"],["10:45~11:15","최진아"],["11:30~12:00","강인혁"],["12:15~12:45","김명선","person",true],["12:45~13:00","랩업","milestone"] ]},
+      { id:"1126-ms-b", name:"MS_그룹B", room:"마곡 W3 B1F-04", reviewers:["우중제","도성훈","고석민"], ft:"이은아", webex:"https://lgehq.webex.com/lgehq/j.php?MTID=m3eae05d6486dd62d2393dc58ee4b5b73", meeting:"2513 578 1159", password:"123123", slots:[
+        ["14:00~14:30","서재교"],["14:45~15:15","이슬기"],["15:30~16:00","이경륜"],["16:15~16:45","장동근"],["17:00~17:30","랩업","milestone"] ]},
+      { id:"1126-vs-a", name:"VS_그룹A", room:"마곡 W3 B1F-05", reviewers:["유길상","박상현","김상훈"], ft:"이승진", webex:"https://lgehq.webex.com/lgehq/j.php?MTID=m7aee58ac05a5b481ac9aca4d92f15e31", meeting:"2512 332 7817", password:"123123", slots:[
+        ["14:00~14:30","Dhirendra Pratap Singh"],["14:45~15:15","김진영"],["15:30~16:00","심우진"],["16:15~16:45","장성욱"],["17:00~17:30","랩업","milestone"] ]},
+      { id:"1126-hses-b", name:"HS/ES_그룹B", room:"창원 1, R&D 센터 12층 대회의실", reviewers:["모상수","한상규","송유진"], ft:"진명숙", webex:"https://lgehq.webex.com/lgehq/j.php?MTID=mc3cd2b3944d64680e569284aeccac4f2", meeting:"2517 791 6779", password:"123123", slots:[
+        ["14:00~14:30","홍정민"],["14:45~15:15","천강운"],["15:30~16:00","미정","empty"],["16:15~16:45","김지현","person",true],["17:00~17:30","랩업","milestone"] ]}
+    ]
+  },
+  "2026-11-27": {
+    label: "11/27 (금)",
+    groups: [
+      { id:"1127-ms-c", name:"MS_그룹C", room:"마곡 W3 B1F-04", reviewers:["최상현","백창우","차상훈"], ft:"진명숙", webex:"https://lgehq.webex.com/lgehq/j.php?MTID=m07534ecb7216accb3cd85138895f11d8", meeting:"2512 219 1704", password:"123123", slots:[
+        ["08:30~09:00","곽창민"],["09:15~09:45","민윤홍"],["10:00~10:30","이승일"],["10:45~11:15","조영규"],["11:30~12:00","최유경"],["12:15~12:45","황도청"] ]},
+      { id:"1127-ms-e", name:"MS_그룹E", room:"마곡 W3 B1F-04", reviewers:["김민식","황혜숙","강귀영"], ft:"박정신", webex:"https://lgehq.webex.com/lgehq/j.php?MTID=m07534ecb7216accb3cd85138895f11d8", meeting:"2512 219 1704", password:"123123", slots:[
+        ["14:00~14:30","이현호"],["14:45~15:15","박충호"],["15:30~16:00","양희정"],["16:15~16:45","장윤정"],["17:00~17:30","랩업","milestone"] ]},
+      { id:"1127-vs-b", name:"VS_그룹B", room:"마곡 W3 B1F-05", reviewers:["김남석","이은정","오시환"], ft:"진명숙", webex:"https://lgehq.webex.com/lgehq/j.php?MTID=mc517803f422857c4704e927c347842cd", meeting:"2519 982 9365", password:"123123", slots:[
+        ["14:45~15:15","김태수"],["15:30~16:00","TRUONG VAN GIAP"],["16:15~16:45","DUNG TRUNG PHAM"],["17:00~17:30","랩업","milestone"] ]}
+    ]
+  },
+  "2026-11-30": {
+    label: "11/30 (월)",
+    groups: [
+      { id:"1130-hses-a", name:"HS/ES_그룹A", room:"마곡 W3 B1F-07", reviewers:["박현준","조웅제","김성국"], ft:"진명숙", webex:"https://lgehq.webex.com/lgehq/j.php?MTID=mc3cd2b3944d64680e569284aeccac4f2", meeting:"2517 791 6779", password:"123123", slots:[
+        ["08:30~09:00","미정","empty"],["09:15~09:45","류재형"],["10:00~10:30","박선영"],["10:45~11:15","이진용"],["11:30~12:00","임형택"],["12:15~12:45","주완호"],["12:45~13:30","랩업","milestone"],["13:30~14:00","점심","milestone"] ]}
+    ]
+  }
+};
+
+const CONTACTS = {
+  "배경남": {
+    "profile": "배경남/책임연구원/webOS커넥트솔루션개발팀",
+    "email": "kyungnam.bae@lge.com",
+    "mobile": "82-10-3177-0333",
+    "business": "82-2-2033-4114",
+    "department": "webOS커넥트솔루션개발팀",
+    "role": "책임연구원"
+  },
+  "김순태": {
+    "profile": "김순태/책임연구원/webOS방송미디어개발팀",
+    "email": "soon.kim@lge.com",
+    "mobile": "010-8483-2982",
+    "business": "82-02-6971-1918",
+    "department": "webOS방송미디어개발팀",
+    "role": "책임연구원"
+  },
+  "유종희": {
+    "profile": "유종희/책임연구원/webOS방송미디어개발팀",
+    "email": "jonghee.yoo@lge.com",
+    "mobile": "82-10-6254-2785",
+    "business": "82-31-8066-3520",
+    "department": "webOS방송미디어개발팀",
+    "role": "책임연구원"
+  },
+  "최정용": {
+    "profile": "최정용/책임연구원/webOS커넥티비티SW개발팀",
+    "email": "jungyong.choi@lge.com",
+    "mobile": "010-9941-4286",
+    "business": "82-010-9941-4286",
+    "department": "webOS커넥티비티SW개발팀",
+    "role": "책임연구원"
+  },
+  "최진규": {
+    "profile": "최진규/책임연구원/webOS미디어SW개발팀",
+    "email": "jinkyu.choi@lge.com",
+    "mobile": "010-7650-4696",
+    "business": "82-10-7650-4696",
+    "department": "webOS미디어SW개발팀",
+    "role": "책임연구원"
+  },
+  "이석희": {
+    "profile": "이석희/책임연구원/차세대플랫폼개발실",
+    "email": "seokhee.lee@lge.com",
+    "mobile": "010-47034526",
+    "business": "82-010-4703-4526",
+    "department": "차세대플랫폼개발실",
+    "role": "책임연구원"
+  },
+  "이장희": {
+    "profile": "이장희/책임연구원/B2B솔루션PMO",
+    "email": "janny.lee@lge.com",
+    "mobile": "010-8874-6377",
+    "business": "82-10-8874-6377",
+    "department": "B2B솔루션PMO",
+    "role": "책임연구원"
+  },
+  "이진희 (B2B솔루션PMO)": {
+    "profile": "이진희/책임연구원/B2B솔루션PMO",
+    "email": "jinhee2.lee@lge.com",
+    "mobile": "010-6436-1043",
+    "business": "82-31-686-4759",
+    "department": "B2B솔루션PMO",
+    "role": "책임연구원"
+  },
+  "이진희 (webOS UX플랫폼개발팀)": {
+    "profile": "이진희/책임연구원/webOS UX플랫폼개발팀",
+    "email": "jinhee.lee@lge.com",
+    "mobile": "82-10-8700-9814",
+    "business": "82-2-6971-1594",
+    "department": "webOS UX플랫폼개발팀",
+    "role": "책임연구원"
+  },
+  "조혜란": {
+    "profile": "조혜란/책임연구원/webOS TDD팀",
+    "email": "hyeran.cho@lge.com",
+    "mobile": "82-10-5581-6196",
+    "business": "82-31-8066-3788",
+    "department": "webOS TDD팀",
+    "role": "책임연구원"
+  },
+  "김세윤": {
+    "profile": "김세윤/책임연구원/SW Platform(연)선행Platform개발실 Scalability Task",
+    "email": "seyoon.kim@lge.com",
+    "mobile": "82-10-6368-1843",
+    "business": "",
+    "department": "SW Platform(연)선행Platform개발실 Scalability Task",
+    "role": "책임연구원"
+  },
+  "정재현": {
+    "profile": "정재현/책임연구원/SoC센터 SoC개발실 LED사이니지칩Task",
+    "email": "jaehyun1001.jeong@lge.com",
+    "mobile": "010-6855-7985",
+    "business": "82-10-6855-7985",
+    "department": "SoC센터 SoC개발실 LED사이니지칩Task",
+    "role": "책임연구원"
+  },
+  "최진아": {
+    "profile": "최진아/연구원/차세대컴퓨팅(연)차세대Security연구실 SW Security Task",
+    "email": "jina11.choi@lge.com",
+    "mobile": "82-10-5917-5099",
+    "business": "82-010-5917-5099",
+    "department": "차세대컴퓨팅(연)차세대Security연구실 SW Security Task",
+    "role": "연구원"
+  },
+  "강인혁": {
+    "profile": "Hugh Kang/Advanced OS Task",
+    "email": "hugh.kang@lge.com",
+    "mobile": "82-10-5513-7957",
+    "business": "",
+    "department": "SW Platform(연)Advanced OS Task",
+    "role": "Advanced OS Task"
+  },
+  "김명선": {
+    "profile": "김명선/선임연구원/선행플랫폼개발팀",
+    "email": "myeongseon.kim@lge.com",
+    "mobile": "",
+    "business": "82-10-9920-6102",
+    "department": "선행플랫폼개발팀",
+    "role": "선임연구원"
+  },
+  "서재교": {
+    "profile": "서재교/책임연구원/webOS Hub PMO",
+    "email": "jaegyo.seo@lge.com",
+    "mobile": "82-10-5672-4540",
+    "business": "",
+    "department": "webOS Hub PMO",
+    "role": "책임연구원"
+  },
+  "이슬기": {
+    "profile": "이슬기/책임연구원/제품/UX평가팀",
+    "email": "seulki34.lee@lge.com",
+    "mobile": "82-10-6360-6896",
+    "business": "82-55-3777-9999",
+    "department": "제품/UX평가팀",
+    "role": "책임연구원"
+  },
+  "이경륜": {
+    "profile": "이경륜/책임연구원/webOS커넥트솔루션개발팀",
+    "email": "kyungryun.lee@lge.com",
+    "mobile": "010-2094-5490",
+    "business": "82-2-6971-1563",
+    "department": "webOS커넥트솔루션개발팀",
+    "role": "책임연구원"
+  },
+  "장동근": {
+    "profile": "장동근/선임연구원/webOS플랫폼미디어개발팀",
+    "email": "dongkeun.jang@lge.com",
+    "mobile": "82-10-2240-4472",
+    "business": "82-010-2240-4472",
+    "department": "webOS플랫폼미디어개발팀",
+    "role": "선임연구원"
+  },
+  "Dhirendra Pratap Singh": {
+    "profile": "Dhirendra Pratap Singh/LGSI Program Management Unit",
+    "email": "dhirendra.singh@lge.com",
+    "mobile": "9-1-99020-21386",
+    "business": "91-80-6615-5000",
+    "department": "LGSI Program Management Unit",
+    "role": "LGSI Program Management Unit"
+  },
+  "김진영": {
+    "profile": "김진영/책임연구원/Digital Production파트",
+    "email": "chloejy.kim@lge.com",
+    "mobile": "82-10-5674-0877",
+    "business": "82-010-5674-0877",
+    "department": "Digital Production파트",
+    "role": "책임연구원"
+  },
+  "심우진": {
+    "profile": "Woojin Sim(심우진)/ADAS&Vehicle Intelligence선행개발Task",
+    "email": "woojin.sim@lge.com",
+    "mobile": "",
+    "business": "82-10-7195-5436",
+    "department": "ADAS&Vehicle Intelligence선행개발Task",
+    "role": "ADAS&Vehicle Intelligence선행개발Task"
+  },
+  "장성욱": {
+    "profile": "Sungwook Jang/Telematics 3 Project",
+    "email": "sungwook.jang@lge.com",
+    "mobile": "",
+    "business": "82-10-7110-5905",
+    "department": "Telematics 3 Project",
+    "role": ""
+  },
+  "홍정민": {
+    "profile": "홍정민/책임연구원/iLab Intelligence Glasses Task",
+    "email": "jeongmin.hong@lge.com",
+    "mobile": "82-10-9515-1803",
+    "business": "82-2-2033-2320",
+    "department": "iLab Intelligence Glasses Task",
+    "role": "책임연구원"
+  },
+  "천강운": {
+    "profile": "천강운/책임연구원/키친솔루션SW플랫폼개발Project",
+    "email": "kangwoon.cheon@lge.com",
+    "mobile": "82-10-5505-5705",
+    "business": "82-55-260-3812",
+    "department": "키친솔루션SW플랫폼개발Project",
+    "role": "책임연구원"
+  },
+  "김지현": {
+    "profile": "김지현/Task Leader/SoC센터 AMS IP Task",
+    "email": "johnny.kim@lge.com",
+    "mobile": "010-7677-2693",
+    "business": "82-2-526-4794",
+    "department": "SoC센터 AMS IP Task",
+    "role": "Task Leader"
+  },
+  "곽창민": {
+    "profile": "곽창민/책임연구원/AI서비스개발팀",
+    "email": "changmin.kwak@lge.com",
+    "mobile": "82-10-8336-6982",
+    "business": "82-2-6971-2024",
+    "department": "AI서비스개발팀",
+    "role": "책임연구원"
+  },
+  "민윤홍": {
+    "profile": "민윤홍/책임연구원/AI서비스개발팀",
+    "email": "yunhong.min@lge.com",
+    "mobile": "",
+    "business": "82-10-2008-6183",
+    "department": "AI서비스개발팀",
+    "role": "책임연구원"
+  },
+  "이승일": {
+    "profile": "이승일/책임연구원/webOS ACP RP개발팀",
+    "email": "si.lee@lge.com",
+    "mobile": "82-10-2215-1215",
+    "business": "82-2-2033-3535",
+    "department": "webOS ACP RP개발팀",
+    "role": "책임연구원"
+  },
+  "조영규": {
+    "profile": "조영규/책임연구원/webOS플랫폼코어기술개발팀",
+    "email": "youngkyu86.jo@lge.com",
+    "mobile": "010-3077-9499",
+    "business": "82-10-3077-9499",
+    "department": "webOS플랫폼코어기술개발팀",
+    "role": "책임연구원"
+  },
+  "최유경": {
+    "profile": "최유경/책임연구원/AI SW플랫폼개발팀",
+    "email": "yookyoung.choi@lge.com",
+    "mobile": "82-10-3834-8902",
+    "business": "82-2-8059-1478",
+    "department": "AI SW플랫폼개발팀",
+    "role": "책임연구원"
+  },
+  "황도청": {
+    "profile": "황도청/책임연구원/webOS방송미디어개발팀",
+    "email": "dochung.hwang@lge.com",
+    "mobile": "82-10-2861-4843",
+    "business": "82-010-2861-4843",
+    "department": "webOS방송미디어개발팀",
+    "role": "책임연구원"
+  },
+  "이현호": {
+    "profile": "이현호/책임연구원/webOS미디어SW개발팀",
+    "email": "hyunhojason.lee@lge.com",
+    "mobile": "82-10-7739-3014",
+    "business": "82-02-6971-1614",
+    "department": "webOS미디어SW개발팀",
+    "role": "책임연구원"
+  },
+  "박충호": {
+    "profile": "박충호",
+    "email": "chungho.bak@lgeteams.lge.com",
+    "mobile": "",
+    "business": "",
+    "department": "",
+    "role": ""
+  },
+  "양희정": {
+    "profile": "양희정/선임연구원/B2B기업/교육솔루션개발팀",
+    "email": "heejeong.yang@lge.com",
+    "mobile": "82-10-3384-7117",
+    "business": "82-031-1234-1234",
+    "department": "B2B기업/교육솔루션개발팀",
+    "role": "선임연구원"
+  },
+  "장윤정": {
+    "profile": "장윤정/선임연구원/B2B기업/교육솔루션개발팀",
+    "email": "yunjeong.jang@lge.com",
+    "mobile": "82-10-5104-4235",
+    "business": "82-2-6950-3209",
+    "department": "B2B기업/교육솔루션개발팀",
+    "role": "선임연구원"
+  },
+  "김태수": {
+    "profile": "김태수/책임연구원/VS HW개발품질보증1팀",
+    "email": "challenge.kim@lge.com",
+    "mobile": "82-10-6567-2721",
+    "business": "82-31-610-9243",
+    "department": "VS HW개발품질보증1팀",
+    "role": "책임연구원"
+  },
+  "TRUONG VAN GIAP": {
+    "profile": "TRUONG VAN GIAP/Part Leader/LGEDV SOFTWARE ENGINEERING 1 TEAM",
+    "email": "truong.giap@lge.com",
+    "mobile": "",
+    "business": "84-987-153-268",
+    "department": "LGEDV SOFTWARE ENGINEERING 1 TEAM",
+    "role": "Part Leader"
+  },
+  "DUNG TRUNG PHAM": {
+    "profile": "DUNG TRUNG PHAM/LGEDV SOFTWARE ENGINEERING 2 TEAM",
+    "email": "dung2.pham@lge.com",
+    "mobile": "84-849-888-678",
+    "business": "84-24-3275-3173",
+    "department": "LGEDV SOFTWARE ENGINEERING 2 TEAM",
+    "role": "LGEDV SOFTWARE ENGINEERING 2 TEAM"
+  },
+  "류재형": {
+    "profile": "류재형/책임연구원/HS AI홈디바이스연구실",
+    "email": "jaehyung.ryu@lge.com",
+    "mobile": "82-10-2259-1020",
+    "business": "82-2-0000-1234",
+    "department": "HS AI홈디바이스연구실",
+    "role": "책임연구원"
+  },
+  "박선영": {
+    "profile": "박선영/책임연구원/ES제어QE팀",
+    "email": "sunyoung.park@lge.com",
+    "mobile": "010-3598-3454",
+    "business": "82-055-269-3326",
+    "department": "ES제어QE팀",
+    "role": "책임연구원"
+  },
+  "이진용": {
+    "profile": "이진용/책임연구원/ES엔지니어링AX팀",
+    "email": "jinyong15.lee@lge.com",
+    "mobile": "010-39372280",
+    "business": "82-2-0000-0000",
+    "department": "ES엔지니어링AX팀",
+    "role": "책임연구원"
+  },
+  "임형택": {
+    "profile": "임형택/책임연구원/키친솔루션제어연구담당",
+    "email": "hyoungtaek.lim@lge.com",
+    "mobile": "82-10-2257-6382",
+    "business": "82-2-0000-0000",
+    "department": "키친솔루션제어연구담당",
+    "role": "책임연구원"
+  },
+  "주완호": {
+    "profile": "주완호/책임연구원/HS GPOS플랫폼개발팀",
+    "email": "steve.ju@lge.com",
+    "mobile": "82-10-9129-2851",
+    "business": "82-2-6950-4650",
+    "department": "HS GPOS플랫폼개발팀",
+    "role": "책임연구원"
+  }
+};
+
+const SP_CONFIG = {
+  siteUrl: "https://lgeteams.sharepoint.com/sites/msteams_2a2df6",
+  siteId: "lgeteams.sharepoint.com,0831b5ca-08c6-4348-ba36-31579a8dcb5a,6f363aef-918d-480a-8e51-6d5cae68644a",
+  listId: "4ad0eb32-a3bd-4721-9893-413367ff5e98",
+  listUrl: "https://lgeteams.sharepoint.com/sites/msteams_2a2df6/Lists/LG%20SW%20PM",
+  pollMs: 5000,
+  apiBase: "",
+  serverRelativeSite: "/sites/msteams_2a2df6",
+  canonicalUrl: "https://lgeteams.sharepoint.com/sites/msteams_2a2df6/Shared%20Documents/General/LG%20SW%20PM%20%EC%97%AD%EB%9F%89%EC%9D%B8%EC%A6%9D%20%EC%8B%AC%EC%82%AC%20%ED%98%84%ED%99%A9_%EA%B2%80%EC%A6%9D%EC%99%84%EB%A3%8C.html"
+};
+const STORAGE_KEY = "project-review-dashboard-v4";
+const META_KEY = "lg-sw-pm-review-dashboard-meta-v1";
+let selectedDate = Object.keys(REVIEW_DATA)[0];
+let completed = loadState();
+let meta = loadMeta();
+let openedFromSharedSnapshot = false;
+let cloudItems = new Map();
+let cloudState = {status:"busy",message:"SharePoint 연결 중",lastSync:"",error:""};
+let digestCache = {value:"",expires:0};
+let syncInFlight = null;
+const channel = "BroadcastChannel" in window ? new BroadcastChannel("project-review-dashboard") : null;
+
+function loadState(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function loadMeta(){
+  try { return JSON.parse(localStorage.getItem(META_KEY)) || {updatedAt:"",updatedBy:""}; } catch(e) { return {updatedAt:"",updatedBy:""}; }
+}
+function persist(updateMeta=false){
+  if(updateMeta){ meta.updatedAt=new Date().toISOString(); meta.updatedBy=document.getElementById("operatorName")?.value.trim()||meta.updatedBy||"미입력"; }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(completed)); localStorage.setItem(META_KEY, JSON.stringify(meta));
+  if(channel) channel.postMessage({type:"state", completed, meta});
+}
+function personSlots(group){ return group.slots.map((s,i)=>({s,i})).filter(x => !["empty","milestone"].includes(x.s[2] || "person")); }
+function keyFor(group, index){ return `${group.id}::${index}`; }
+function dateForGroup(groupId){for(const [date,day] of Object.entries(REVIEW_DATA)){if(day.groups.some(g=>g.id===groupId))return date;}return "";}
+function recordTitle(date,group,time,name){return `${date}|${group.name}|${time}|${name}`;}
+function recordForKey(key){for(const [date,day] of Object.entries(REVIEW_DATA)){for(const group of day.groups){for(const {s,i} of personSlots(group)){if(keyFor(group,i)===key)return {date,group,index:i,slot:s,title:recordTitle(date,group,s[0],s[1])};}}}return null;}
+function allRecords(){const out=[];for(const [date,day] of Object.entries(REVIEW_DATA)){for(const group of day.groups){for(const {s,i} of personSlots(group)){out.push({date,group,index:i,slot:s,key:keyFor(group,i),title:recordTitle(date,group,s[0],s[1])});}}}return out;}
+function groupStats(group){
+  const people = personSlots(group); const done = people.filter(x=>completed[keyFor(group,x.i)]).length;
+  const total = people.length; const percent = total ? Math.round(done/total*100) : 0;
+  const last = [...people].reverse().find(x=>completed[keyFor(group,x.i)]);
+  const next = people.find(x=>!completed[keyFor(group,x.i)]);
+  return {done,total,percent,last:last?.s[1]||"없음",next:next?.s[1]||"없음"};
+}
+function esc(s){ return String(s).replace(/[&<>'"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])); }
+function render(){
+  renderDates();
+  const day=REVIEW_DATA[selectedDate];
+  document.getElementById("dateTitle").textContent=`${day.label} 그룹별 진행 현황`;
+  renderSummary(day.groups); renderProgress(day.groups); renderCards(day.groups); renderStorageNotice();
+}
+function renderDates(){
+  document.getElementById("dateButtons").innerHTML=Object.entries(REVIEW_DATA).map(([date,d])=>`<button type="button" class="date-btn ${date===selectedDate?"active":""}" data-date="${date}">${d.label}</button>`).join("");
+  document.querySelectorAll(".date-btn").forEach(b=>b.addEventListener("click",()=>{selectedDate=b.dataset.date;render();}));
+}
+function renderSummary(groups){
+  const stats=groups.map(groupStats); const done=stats.reduce((a,s)=>a+s.done,0); const total=stats.reduce((a,s)=>a+s.total,0); const finished=stats.filter(s=>s.total>0&&s.done===s.total).length; const rooms=new Set(groups.map(g=>g.room)).size;
+  document.getElementById("summary").innerHTML=`
+    <div class="summary-card"><div class="summary-label">운영 그룹</div><div class="summary-value">${groups.length}</div><div class="summary-sub">선택 날짜 기준</div></div>
+    <div class="summary-card"><div class="summary-label">심사 완료</div><div class="summary-value">${done}<small> / ${total}</small></div><div class="summary-sub">실제 심사 대상자 기준</div></div>
+    <div class="summary-card"><div class="summary-label">완료 그룹</div><div class="summary-value">${finished}</div><div class="summary-sub">모든 대상 체크 완료</div></div>
+    <div class="summary-card"><div class="summary-label">운영 장소</div><div class="summary-value">${rooms}</div><div class="summary-sub">서로 다른 회의실/장소</div></div>`;
+}
+function renderProgress(groups){
+  document.getElementById("progressBoard").innerHTML=groups.map(g=>{const s=groupStats(g);return `<div class="progress-row">
+    <div><div class="progress-name">${esc(g.name)}</div><div class="progress-room">${esc(g.room)}</div></div>
+    <div><div class="mini-track"><div class="mini-fill" style="width:${s.percent}%"></div></div><div class="progress-room" style="margin-top:4px">${s.done}/${s.total}명 · ${s.percent}%</div></div>
+    <div class="progress-next">마지막 완료: <strong>${esc(s.last)}</strong></div><div class="progress-next">다음 대상: <strong>${esc(s.next)}</strong></div>
+  </div>`}).join("");
+}
+function renderCards(groups){
+  document.getElementById("cards").innerHTML=groups.map(g=>{
+    const s=groupStats(g); const status=s.done===0?["시작 전","wait"]:s.done===s.total?["완료","done"]:["진행 중",""];
+    const slots=g.slots.map((slot,index)=>{
+      const [time,name,kindRaw,isWebex]=slot; const kind=kindRaw||"person";
+      if(kind==="empty") return `<li class="slot empty"><span class="slot-time">${esc(time)}</span><span></span><span class="person-label">${esc(name)}</span></li>`;
+      if(kind==="milestone") return `<li class="slot milestone"><span class="slot-time">${esc(time)}</span><span></span><span class="person-label">${esc(name)}</span></li>`;
+      const key=keyFor(g,index), checked=!!completed[key];
+      const title=recordTitle(selectedDate,g,time,name), cloud=cloudItems.get(title);
+      const contactButton=`<button type="button" class="person-name contact-btn" data-contact="${esc(name)}" data-group="${esc(g.id)}" title="회사 이메일과 전화번호 확인">${esc(name)}</button>`;
+      const nameView=isWebex?`${contactButton}<a class="w-badge" href="${esc(g.webex)}" target="_blank" rel="noopener" title="Webex로 연결">W · Webex</a>`:contactButton;
+      const doneMeta=checked&&cloud?`<small class="done-meta">${esc(cloud.CompletedBy||"처리자 미입력")} · ${esc(formatWhen(cloud.CompletedAt))}</small>`:"";
+      return `<li class="slot"><span class="slot-time">${esc(time)}</span><input type="checkbox" aria-label="${esc(name)} 심사 완료" data-key="${esc(key)}" data-record="${esc(title)}" ${checked?"checked":""}><span class="person-label ${checked?"done":""}"><span>${nameView}${doneMeta}</span></span></li>`;
+    }).join("");
+    return `<article class="group-card ${status[1]==="done"?"complete":""}">
+      <div class="card-head"><div class="head-line"><div><h3 class="group-title">${esc(g.name)}</h3><div class="room">● ${esc(g.room)}</div></div><span class="status ${status[1]}">${status[0]}</span></div></div>
+      <dl class="meta"><dt>심사위원</dt><dd>${g.reviewers.map(esc).join(" · ")}</dd><dt>운영 FT</dt><dd>${esc(g.ft)}</dd><dt>미팅 번호</dt><dd class="meeting">${esc(g.meeting)}</dd><dt>비밀번호</dt><dd>${esc(g.password)}</dd></dl>
+      <div class="webex-box"><div class="webex-copy"><strong>Webex 접속</strong><span>미팅 번호 ${esc(g.meeting)}</span></div><a class="join-btn" href="${esc(g.webex)}" target="_blank" rel="noopener">접속하기</a></div>
+      <div class="card-progress"><div class="progress-top"><span>심사 진행률</span><span>${s.done}/${s.total}명 · ${s.percent}%</span></div><div class="track"><div class="fill" style="width:${s.percent}%"></div></div></div>
+      <ul class="schedule">${slots}</ul>
+      <div class="card-foot">마지막 완료 <strong>${esc(s.last)}</strong> &nbsp;·&nbsp; 다음 대상 <strong>${esc(s.next)}</strong></div>
+    </article>`;
+  }).join("");
+  document.querySelectorAll('input[type="checkbox"][data-key]').forEach(cb=>cb.addEventListener("change",()=>handleCompletionChange(cb)));
+  document.querySelectorAll("[data-contact]").forEach(btn=>btn.addEventListener("click",()=>openContact(btn.dataset.contact,btn.dataset.group)));
+}
+
+
+function isSharePointContext(){return location.protocol==="https:"&&location.hostname.toLowerCase()==="lgeteams.sharepoint.com";}
+function useApi(){return !isSharePointContext()&&!!SP_CONFIG.apiBase;}
+function apiUrl(path){return `${SP_CONFIG.apiBase.replace(/\/+$/,"")}${path}`;}
+// text/plain 요청은 CORS preflight 없이 전달된다.
+async function apiCall(payload){
+  let response;
+  try{response=await fetch(apiUrl("/api/sync"),{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(payload),cache:"no-store"});}
+  catch(e){throw new Error(`NETWORK_OR_CORS: ${e.message}`);}
+  const text=await response.text();
+  if(!response.ok)throw new Error(`HTTP_${response.status}: ${text.slice(0,240)||response.statusText}`);
+  try{return text?JSON.parse(text):null;}catch(e){throw new Error(`JSON_PARSE: ${text.slice(0,180)}`);}
+}
+function sharePointApi(path){return `${SP_CONFIG.serverRelativeSite}/_api/${path.replace(/^\//,"")}`;}
+function contextDiagnostic(){return `origin=${location.origin||"null"}; protocol=${location.protocol}; host=${location.hostname||"local-file"}; iframe=${window.top!==window.self}`;}
+function setSyncState(status,message,error=""){
+  cloudState={...cloudState,status,message,error}; const pill=document.getElementById("syncPill"),text=document.getElementById("syncText"),open=document.getElementById("openSharePointContext");
+  if(pill)pill.className=`sync-pill ${status}`; if(text)text.textContent=message;
+  if(open){open.href=SP_CONFIG.canonicalUrl;open.hidden=isSharePointContext()&&status!=="error";}
+  renderStorageNotice();
+}
+function spHeaders(extra={}){return {"Accept":"application/json;odata=nometadata","X-Requested-With":"XMLHttpRequest",...extra};}
+async function spFetch(pathOrUrl,options={}){
+  if(!isSharePointContext())throw new Error(`AUTH_CONTEXT: 대시보드가 SharePoint 사이트 출처에서 실행되지 않았습니다. ${contextDiagnostic()}`);
+  const url=/^https?:/i.test(pathOrUrl)?pathOrUrl:sharePointApi(pathOrUrl);
+  let response;
+  try{response=await fetch(url,{credentials:"same-origin",mode:"same-origin",redirect:"follow",cache:"no-store",...options,headers:spHeaders(options.headers||{})});}
+  catch(e){throw new Error(`NETWORK_OR_CSP: ${e.message}; ${contextDiagnostic()}`);}
+  const type=response.headers.get("content-type")||"";
+  if(response.redirected&&/login|signin|oauth/i.test(response.url))throw new Error(`AUTH_REDIRECT: Microsoft 365 로그인이 필요합니다. ${contextDiagnostic()}`);
+  const text=response.status===204?"":await response.text();
+  if(!response.ok)throw new Error(`HTTP_${response.status}: ${text.slice(0,240)||response.statusText}`);
+  if(text&&type.includes("text/html"))throw new Error(`AUTH_HTML: REST 대신 로그인/HTML 페이지가 반환되었습니다. SharePoint에서 열기를 사용하세요. ${contextDiagnostic()}`);
+  try{return text?JSON.parse(text):null;}catch(e){throw new Error(`JSON_PARSE: ${text.slice(0,180)}`);}
+}
+async function getDigest(){
+  if(digestCache.value&&Date.now()<digestCache.expires)return digestCache.value;
+  if(window._spPageContextInfo?.formDigestValue){digestCache={value:_spPageContextInfo.formDigestValue,expires:Date.now()+20*60*1000};return digestCache.value;}
+  const data=await spFetch("contextinfo",{method:"POST",headers:{"Content-Type":"application/json;odata=nometadata"}});
+  const info=data?.FormDigestValue?data:data?.d?.GetContextWebInformation;
+  if(!info?.FormDigestValue)throw new Error("DIGEST_MISSING: SharePoint 요청 검증 토큰을 받지 못했습니다.");
+  digestCache={value:info.FormDigestValue,expires:Date.now()+(Number(info.FormDigestTimeoutSeconds||1800)-60)*1000};return digestCache.value;
+}
+function itemArray(data){return data?.value||data?.d?.results||[];}
+function boolValue(v){return v===true||v===1||String(v).toLowerCase()==="true";}
+async function fetchListItems(){
+  if(useApi()){const data=await apiCall({action:"list"});return itemArray(Array.isArray(data)?{value:data}:data).map(x=>({...x,Id:x.Id??x.ID}));}
+  const select="Id,Title,GroupName,ReviewDate,ReviewTime,CandidateName,Completed,CompletedBy,CompletedAt,Modified";
+  let url=`web/lists(guid'${SP_CONFIG.listId}')/items?$select=${select}&$top=200`,all=[];
+  while(url){const data=await spFetch(url);all.push(...itemArray(data));url=data?.["@odata.nextLink"]||data?.d?.__next||"";}return all;
+}
+async function createCloudRecord(rec,completedValue=false,by=""){
+  const now=completedValue?new Date().toISOString():null;
+  const body={Title:rec.title,GroupName:rec.group.name,ReviewDate:rec.date,ReviewTime:rec.slot[0],CandidateName:rec.slot[1],Completed:completedValue,CompletedBy:completedValue?by:"",CompletedAt:now};
+  if(useApi())return apiCall({action:"create",fields:body});
+  const digest=await getDigest();
+  return spFetch(`web/lists(guid'${SP_CONFIG.listId}')/items`,{method:"POST",headers:{"Content-Type":"application/json;odata=nometadata","X-RequestDigest":digest},body:JSON.stringify(body)});
+}
+async function ensureCloudRows(items){
+  const existing=new Set(items.map(x=>x.Title)); const missing=allRecords().filter(r=>!existing.has(r.title));
+  if(!missing.length)return false; setSyncState("busy",`초기 데이터 생성 중 · ${missing.length}건`);
+  for(let i=0;i<missing.length;i+=4){await Promise.all(missing.slice(i,i+4).map(r=>createCloudRecord(r,false,"")));}return true;
+}
+function applyCloudItems(items){
+  cloudItems=new Map(); const titleMap=new Map(allRecords().map(r=>[r.title,r]));
+  for(const r of allRecords())delete completed[r.key];
+  for(const item of items){if(!item?.Title)continue;cloudItems.set(item.Title,item);const rec=titleMap.get(item.Title);if(rec&&boolValue(item.Completed))completed[rec.key]=true;}
+  const modified=items.map(x=>x.Modified||x.CompletedAt).filter(Boolean).sort().pop()||new Date().toISOString();
+  meta.updatedAt=modified; persist(false);
+}
+async function syncFromSharePoint(options={seed:true,quiet:false}){
+  if(!isSharePointContext()&&!useApi()){setSyncState("error","SharePoint에서 열어야 연결됨",`AUTH_CONTEXT: ${contextDiagnostic()}`);return;}
+  if(syncInFlight)return syncInFlight;
+  syncInFlight=(async()=>{try{
+    if(!options.quiet)setSyncState("busy","SharePoint 동기화 중");
+    let items=await fetchListItems();
+    if(options.seed&&await ensureCloudRows(items))items=await fetchListItems();
+    applyCloudItems(items);cloudState.lastSync=new Date().toISOString();setSyncState("online",`공용 현황 연결 · ${items.length}명`);render();
+  }catch(e){console.error(e);setSyncState("error","공용 저장소 연결 실패",e.message);if(!options.quiet)showToast("SharePoint 연결을 확인하세요.");}finally{syncInFlight=null;}})();return syncInFlight;
+}
+async function updateCloudItem(itemId,fields){
+  if(useApi())return apiCall({action:"update",id:itemId,fields});
+  const digest=await getDigest();return spFetch(`web/lists(guid'${SP_CONFIG.listId}')/items(${itemId})`,{method:"POST",headers:{"Content-Type":"application/json;odata=nometadata","X-RequestDigest":digest,"X-HTTP-Method":"MERGE","IF-MATCH":"*"},body:JSON.stringify(fields)});
+}
+async function handleCompletionChange(cb){
+  const key=cb.dataset.key,checked=cb.checked,rec=recordForKey(key),operator=document.getElementById("operatorName").value.trim()||meta.updatedBy||"미입력";
+  if(!rec)return;cb.disabled=true;if(checked)completed[key]=true;else delete completed[key];meta={updatedAt:new Date().toISOString(),updatedBy:operator};persist(false);render();setSyncState("busy","저장 중");
+  try{
+    let item=cloudItems.get(rec.title);const fields={Completed:checked,CompletedBy:checked?operator:"",CompletedAt:checked?new Date().toISOString():null};
+    if(item)await updateCloudItem(item.Id,fields);else await createCloudRecord(rec,checked,operator);
+    await syncFromSharePoint({seed:false,quiet:true});showToast(checked?"공용 현황에 완료 저장":"공용 현황에서 완료 해제");
+  }catch(e){console.error(e);showToast("저장 실패: 이전 상태를 다시 불러옵니다.");await syncFromSharePoint({seed:false,quiet:false});}
+}
+async function loadCurrentUser(){try{const u=await spFetch(`web/currentuser?$select=Title,Email`);const user=u?.d||u;if(user?.Title&&!document.getElementById("operatorName").value){document.getElementById("operatorName").value=user.Title;meta.updatedBy=user.Title;persist(false);}}catch(e){console.warn("current user",e);}}
+async function resetSelectedDateCloud(){
+  if(!confirm(`${REVIEW_DATA[selectedDate].label}의 완료 체크를 공용 목록에서 모두 초기화할까요?`))return;
+  const targets=allRecords().filter(r=>r.date===selectedDate&&cloudItems.has(r.title));setSyncState("busy","선택 날짜 초기화 중");
+  for(let i=0;i<targets.length;i+=5){await Promise.all(targets.slice(i,i+5).map(r=>updateCloudItem(cloudItems.get(r.title).Id,{Completed:false,CompletedBy:"",CompletedAt:null})));}
+  await syncFromSharePoint({seed:false,quiet:true});showToast("공용 현황을 초기화했습니다.");
+}
+
+function findGroup(groupId){ for(const day of Object.values(REVIEW_DATA)){const g=day.groups.find(x=>x.id===groupId);if(g)return g;} return null; }
+function telHref(value){ return "tel:"+String(value||"").replace(/[^+\d]/g,""); }
+function openModal(id){const el=document.getElementById(id);el.classList.add("open");el.setAttribute("aria-hidden","false");}
+function closeModal(id){const el=document.getElementById(id);el.classList.remove("open");el.setAttribute("aria-hidden","true");}
+function openContact(name,groupId){
+  const c=CONTACTS[name]||{}; const g=findGroup(groupId); const isWebex=!!(g&&g.slots.some(s=>s[1]===name&&s[3]===true));
+  document.getElementById("contactTitle").textContent=name+" 연락처";
+  const email=c.email?`<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`:"사내 디렉터리 등록 정보 없음";
+  const mobile=c.mobile?`<a href="${esc(telHref(c.mobile))}">${esc(c.mobile)}</a>`:"사내 디렉터리 등록 정보 없음";
+  const business=c.business?`<a href="${esc(telHref(c.business))}">${esc(c.business)}</a>`:"사내 디렉터리 등록 정보 없음";
+  const profile=c.profile||name; const team=c.department||"조직 정보 없음";
+  document.getElementById("contactBody").innerHTML=`<div class="contact-profile"><strong>${esc(profile)}</strong><br>${esc(team)}</div><dl class="contact-grid"><dt>회사 이메일</dt><dd>${email}</dd><dt>휴대전화</dt><dd>${mobile}</dd><dt>업무 전화</dt><dd>${business}</dd></dl><div class="modal-actions">${c.email?`<a class="primary-btn" href="mailto:${esc(c.email)}">메일 보내기</a>`:""}${c.mobile?`<a class="secondary-btn" href="${esc(telHref(c.mobile))}">전화 걸기</a>`:""}${isWebex?`<a class="secondary-btn" href="${esc(g.webex)}" target="_blank" rel="noopener">Webex 접속</a>`:""}</div>`;
+  openModal("contactModal");
+}
+function encodePayload(payload){const bytes=new TextEncoder().encode(JSON.stringify(payload));let bin="";bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");}
+function decodePayload(code){const clean=code.replace(/^LGPM1\./,"").replace(/-/g,"+").replace(/_/g,"/");const pad=clean+"=".repeat((4-clean.length%4)%4);const bin=atob(pad);const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));return JSON.parse(new TextDecoder().decode(bytes));}
+function sharePayload(){return {v:1,date:selectedDate,completed,meta:{...meta,sharedAt:new Date().toISOString()}};}
+function shareCode(){return "LGPM1."+encodePayload(sharePayload());}
+function applySharedPayload(p){if(!p||p.v!==1||typeof p.completed!=="object")throw new Error("invalid");completed=p.completed||{};meta=p.meta||meta;if(p.date&&REVIEW_DATA[p.date])selectedDate=p.date;openedFromSharedSnapshot=true;persist(false);document.getElementById("operatorName").value=meta.updatedBy&&meta.updatedBy!=="미입력"?meta.updatedBy:"";render();}
+function tryLoadHash(){const m=location.hash.match(/^#status=(.+)$/);if(!m)return;try{applySharedPayload(decodePayload(m[1]));}catch(e){console.warn("공유 상태를 읽지 못했습니다.");}}
+function formatWhen(iso){if(!iso)return "아직 수정 기록 없음";try{return new Intl.DateTimeFormat("ko-KR",{dateStyle:"medium",timeStyle:"short"}).format(new Date(iso));}catch(e){return iso;}}
+function renderStorageNotice(){const who=meta.updatedBy&&meta.updatedBy!=="미입력"?` · 마지막 처리자 ${meta.updatedBy}`:"";const when=cloudState.lastSync?` · 동기화 ${formatWhen(cloudState.lastSync)}`:"";const detail=cloudState.error?` · ${cloudState.error.split(":")[0]}`:"";document.getElementById("storageNoticeText").textContent=`SharePoint Lists 중앙 현황 ${cloudState.status==="online"?"연결됨":"상태 확인 필요"}${who}${when}${detail}`;}
+function openShare(){document.getElementById("shareMeta").innerHTML=`선택 날짜 ${esc(REVIEW_DATA[selectedDate].label)} · 마지막 중앙 동기화 ${esc(formatWhen(cloudState.lastSync))} · 운영자 ${esc(meta.updatedBy||"미입력")}<div class="diagnostic">${esc(contextDiagnostic())}${cloudState.error?"<br>error="+esc(cloudState.error):""}</div>`;openModal("shareModal");}
+async function copyText(text,msg){try{await navigator.clipboard.writeText(text);showToast(msg);}catch(e){prompt("아래 내용을 복사하세요.",text);}}
+async function copyShareLink(){await copyText(SP_CONFIG.canonicalUrl,"SharePoint 공용 대시보드 링크를 복사했습니다.");}
+async function copyShareCode(){await copyText(shareCode(),"현재 상태가 담긴 공유 코드를 복사했습니다.");}
+function promptApplyShareCode(){const code=prompt("전달받은 LGPM1 공유 코드를 붙여 넣으세요.");if(!code)return;try{applySharedPayload(decodePayload(code.trim()));closeModal("shareModal");showToast("공유 현황 스냅샷을 적용했습니다.");}catch(e){alert("올바른 공유 코드가 아닙니다.");}}
+
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove("show"),2300)}
+function statusText(){
+  const day=REVIEW_DATA[selectedDate]; const lines=[`[${day.label} 프로젝트 심사 현황]`];
+  day.groups.forEach(g=>{const s=groupStats(g);lines.push(`- ${g.name} (${g.room}): ${s.done}/${s.total}명 완료 | 마지막 ${s.last} | 다음 ${s.next}`)});return lines.join("\n");
+}
+async function copyStatus(){try{await navigator.clipboard.writeText(statusText());showToast("현재 현황을 클립보드에 복사했습니다.")}catch(e){prompt("아래 현황을 복사하세요.",statusText())}}
+function exportState(){
+  const payload={version:1,exportedAt:new Date().toISOString(),completed}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}); const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`심사현황_${selectedDate}.json`;a.click();URL.revokeObjectURL(a.href);showToast("현황 파일을 저장했습니다.");
+}
+function importState(file){const r=new FileReader();r.onload=()=>{try{const obj=JSON.parse(r.result);if(!obj.completed||typeof obj.completed!=="object")throw new Error();completed=obj.completed;persist();render();showToast("현황을 불러왔습니다.")}catch(e){alert("올바른 현황 JSON 파일이 아닙니다.")}};r.readAsText(file)}
+
+document.getElementById("operatorName").value=meta.updatedBy&&meta.updatedBy!=="미입력"?meta.updatedBy:"";
+document.getElementById("operatorName").addEventListener("change",e=>{meta.updatedBy=e.target.value.trim();persist(false);renderStorageNotice();});
+document.getElementById("shareBtn").addEventListener("click",openShare);
+document.getElementById("copyShareLinkBtn").addEventListener("click",copyShareLink);
+document.getElementById("syncNowBtn").addEventListener("click",()=>{closeModal("shareModal");syncFromSharePoint({seed:true,quiet:false});});
+document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.close)));
+document.querySelectorAll(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)closeModal(m.id)}));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal-backdrop.open").forEach(m=>closeModal(m.id))});
+document.getElementById("refreshBtn").addEventListener("click",()=>syncFromSharePoint({seed:true,quiet:false}));
+document.getElementById("copyBtn").addEventListener("click",copyStatus);
+document.getElementById("exportBtn").addEventListener("click",exportState);
+document.getElementById("importBtn").addEventListener("click",()=>document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change",e=>{if(e.target.files[0])importState(e.target.files[0]);e.target.value=""});
+document.getElementById("resetBtn").addEventListener("click",resetSelectedDateCloud);
+window.addEventListener("storage",e=>{if(e.key===STORAGE_KEY){completed=loadState();render();}});
+if(channel) channel.onmessage=e=>{if(e.data?.type==="state"){completed=e.data.completed||{};meta=e.data.meta||meta;render();}};
+render();
+if(useApi()){const x=document.getElementById("excelExportBtn");x.href=apiUrl("/api/export.csv");x.hidden=false;}
+if(isSharePointContext()){loadCurrentUser();syncFromSharePoint({seed:true,quiet:false});}
+else if(useApi())syncFromSharePoint({seed:true,quiet:false});
+else setSyncState("error","SharePoint에서 열어야 연결됨",`AUTH_CONTEXT: ${contextDiagnostic()}`);
+setInterval(()=>syncFromSharePoint({seed:false,quiet:true}),SP_CONFIG.pollMs);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncFromSharePoint({seed:false,quiet:true});});
+</script>
+</body>
+</html>
